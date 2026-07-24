@@ -83,21 +83,29 @@
     </div>
 </body>
     <script>
+        let dark = false;
+        let modified = false;
         function getTime64() {
               const d = new Date();
               const minutes = d.getHours() * 60 + d.getMinutes();
               return String(Math.floor(((minutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
-        let clock = document.getElementById("clock");
-        let time = getTime64();
-        let dark = Number(time) > 15 && Number(time) < 47;
-        clock.src = `img/clock/clock_${time}.png`;
+        function updateClock() {
+            let clock = document.getElementById("clock");
+            let time = getTime64();
+            if (!modified) {dark = Number(time) > 15 && Number(time) < 47};
+            clock.src = `img/clock/clock_${time}.png`;
+        }
         function clockclick() {
+            modified = true;
             dark = !dark;
             updateDark();
         }
         function updateDark() {
             
         }
+        updateClock();
+        setInterval(updateClock, 60000);
+        
     </script>
 </html>
