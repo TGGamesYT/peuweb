@@ -58,12 +58,19 @@
             border-image-repeat: stretch;
             background-clip: padding-box;
      }
+    #clock {
+        position: absolute;
+        top: 0;
+        right: 0;
+        image-rendering: pixelated;
+    }
     </style>
 </head>
 <body>
     <div class="titel">
         <img src="img/nobgbanner.png" alt="Peutron's banner" class="banner">
         <h1 class="title">Peutron</h1>
+        <img id="clock" src="img/clock/clock_00.png">
     </div>
     <div class="cardlist">
         <div class="card">
@@ -74,4 +81,13 @@
         </div>
     </div>
 </body>
+    <script>
+        function getTime64() {
+            const d = new Date();
+            const minutes = d.getHours() * 60 + d.getMinutes();
+            return Math.floor(((minutes + 720) % 1440) / 22.5);
+        }
+        let clock = document.getElementById("clock");
+        clock.src = `img/clock/clock_{getTime64()}.png`;
+    </script>
 </html>
