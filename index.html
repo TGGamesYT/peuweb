@@ -85,6 +85,7 @@
     <script>
         let flipped = false;
         let dark = false;
+        let clock = document.getElementById("clock");
         function getTime64() {
             const d = new Date();
             let hours = d.getHours();
@@ -98,7 +99,6 @@
             return String(Math.floor(((totalMinutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
         function updateClock() {
-            let clock = document.getElementById("clock");
             let time = getTime64();
             dark = Number(time) > 15 && Number(time) < 47
             clock.src = `img/clock/clock_${time}.png`;
