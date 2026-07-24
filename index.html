@@ -20,6 +20,22 @@
             background-size: 3.125%;
             image-rendering: pixelated;
             margin: 0;
+            position: relative;
+            display: flow-root;
+        }
+        #darkbody {
+            background-image: url("img/netherite.png");
+            background-size: 3.125%;
+            image-rendering: pixelated;
+            margin: 0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0; 
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1s;
         }
         .titel {
             position: relative;
@@ -57,17 +73,22 @@
             border-image-width: 4px;
             border-image-repeat: stretch;
             background-clip: padding-box;
-     }
-    #clock {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 10%;
-        image-rendering: pixelated;
-    }
+        }
+        body.dark-theme .card {
+            border-image-source: url('img/dark-inventory.png');
+            color: #E0E0E0; /* Lighter text so it's readable in dark mode */
+        }
+        #clock {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10%;
+            image-rendering: pixelated;
+        }
     </style>
 </head>
 <body>
+    <div id="darkbody"></div>
     <div class="titel">
         <img src="img/nobgbanner.png" alt="Peutron's banner" class="banner">
         <h1 class="title">Peutron</h1>
@@ -86,6 +107,7 @@
         let flipped = false;
         let dark = false;
         let clock = document.getElementById("clock");
+        let easetime = 0;
         function getTime64() {
             const d = new Date();
             let hours = d.getHours();
@@ -101,18 +123,31 @@
         function updateClock() {
             let time = getTime64();
             dark = Number(time) > 15 && Number(time) < 47
+            if (easetime > 0) {
+                time = String((Number(time)+1+easetime) % 64).padStart(2, "0")
+                easetime--;
+            }
             clock.src = `img/clock/clock_${time}.png`;
         }
         function clockclick() {
             flipped = !flipped;
+            easetime = 32;
             updateClock();
             updateDark();
         }
         function updateDark() {
-            console.log("dark: ", dark)
+            let darkback = document.getElementById("darkbody") 
+            darkback.style.opacity = dark ? 1 : 0;
+
+            if (dark) {
+                document.body.classList.add("dark-theme");
+            } else {
+                document.body.classList.remove("dark-theme");
+            }
         }
         updateClock();
-        setInterval(updateClock, 6000);
+        updateDark();
+        setInterval(updateClock, 6);
         
     </script>
 </html>
