@@ -83,9 +83,9 @@
 </body>
     <script>
         function getTime64() {
-            const d = new Date();
-            const minutes = d.getHours() * 60 + d.getMinutes();
-            return Math.floor(((minutes + 720) % 1440) / 22.5);
+              const d = new Date();
+              const minutes = d.getHours() * 60 + d.getMinutes();
+              return String(Math.floor(((minutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
         let clock = document.getElementById("clock");
         clock.src = `img/clock/clock_${getTime64()}.png`;
