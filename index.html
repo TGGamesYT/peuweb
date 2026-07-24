@@ -83,8 +83,8 @@
     </div>
 </body>
     <script>
+        let flipped = false;
         let dark = false;
-        let modified = false;
         function getTime64() {
               const d = new Date();
               const minutes = d.getHours() * 60 + d.getMinutes();
@@ -93,19 +93,18 @@
         function updateClock() {
             let clock = document.getElementById("clock");
             let time = getTime64();
-            if (!modified) {dark = Number(time) > 15 && Number(time) < 47};
+            dark = Number(time) > 15 && Number(time) < 47
             clock.src = `img/clock/clock_${time}.png`;
         }
         function clockclick() {
-            modified = true;
-            dark = !dark;
+            flipped = !flipped;
             updateDark();
         }
         function updateDark() {
-            
+            console.log("dark: ", dark)
         }
         updateClock();
-        setInterval(updateClock, 60000);
+        setInterval(updateClock, 6000);
         
     </script>
 </html>
