@@ -86,9 +86,16 @@
         let flipped = false;
         let dark = false;
         function getTime64() {
-              const d = new Date();
-              const minutes = d.getHours() * 60 + d.getMinutes();
-              return String(Math.floor(((minutes + 720) % 1440) / 22.5)).padStart(2, "0");
+            const d = new Date();
+            let hours = d.getHours();
+            const minutes = d.getMinutes();
+
+            if (flipped) {
+                hours = (hours + 12) % 24;
+            }
+
+            const totalMinutes = hours * 60 + minutes;
+            return String(Math.floor(((totalMinutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
         function updateClock() {
             let clock = document.getElementById("clock");
