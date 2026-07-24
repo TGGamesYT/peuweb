@@ -47,17 +47,20 @@
         .title {
             position: absolute;
             font-family: echo;
-            color:rgb(28, 75, 28);
+            color: rgb(28, 75, 28);
             font-size: 15vw;
             margin: 0;
             text-align: center;
             bottom: 0;
             transform: translate(-50%, 25%);
             left: 50%;
+            transition: color 1s;
         }
-        .cardlist {
-            
-        }
+        
+        /* 
+          EDIT EVERYTHING YOU WANT ABOUT THE CARDS HERE.
+          You never have to touch .dark-card ever again.
+        */
         .card {
             color: #3F3F3F;
             font-family: pixel;
@@ -73,11 +76,31 @@
             border-image-width: 4px;
             border-image-repeat: stretch;
             background-clip: padding-box;
+            
+            position: relative;
+            z-index: 1;
+            transition: color 1s;
         }
-        body.dark-theme .card {
+        
+        /* Background overlay handler—ignore this completely from now on */
+        .dark-card {
+            position: absolute;
+            top: -4px; 
+            bottom: -4px;
+            left: -4px;
+            right: -4px;
+            border-style: solid;
+            border-width: 4px;
             border-image-source: url('img/dark-inventory.png');
-            color: #E0E0E0; /* Lighter text so it's readable in dark mode */
+            border-image-slice: 4 fill;
+            border-image-width: 4px;
+            border-image-repeat: stretch;
+            background-clip: padding-box;
+            z-index: -1; 
+            opacity: 0;
+            transition: opacity 1s;
         }
+        
         #clock {
             position: absolute;
             top: 0;
@@ -96,9 +119,11 @@
     </div>
     <div class="cardlist">
         <div class="card">
+            <div class="dark-card"></div> 
             Card1
         </div>
         <div class="card">
+            <div class="dark-card"></div>
             Card2
         </div>
     </div>
@@ -108,6 +133,12 @@
         let dark = false;
         let clock = document.getElementById("clock");
         let easetime = 0;
+        
+        let darkback = document.getElementById("darkbody");
+        let cards = document.querySelectorAll(".card");
+        let darkCards = document.querySelectorAll(".dark-card");
+        let titele = document.querySelector(".title");
+
         function getTime64() {
             const d = new Date();
             let hours = d.getHours();
@@ -120,34 +151,40 @@
             const totalMinutes = hours * 60 + minutes;
             return String(Math.floor(((totalMinutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
+        
         function updateClock() {
             let time = getTime64();
-            dark = Number(time) > 15 && Number(time) < 47
+            dark = Number(time) > 15 && Number(time) < 47;
             if (easetime > 0) {
-                time = String((Number(time)+1+easetime) % 64).padStart(2, "0")
+                time = String((Number(time)+1+easetime) % 64).padStart(2, "0");
                 easetime--;
             }
             clock.src = `img/clock/clock_${time}.png`;
         }
+        
         function clockclick() {
             flipped = !flipped;
             easetime = 32;
             updateClock();
             updateDark();
         }
+        
         function updateDark() {
-            let darkback = document.getElementById("darkbody") 
             darkback.style.opacity = dark ? 1 : 0;
+            
+            darkCards.forEach(dc => {
+                dc.style.opacity = dark ? 1 : 0;
+            });
+            
+            cards.forEach(c => {
+                c.style.color = dark ? "#E0E0E0" : "#3F3F3F";
+            });
 
-            if (dark) {
-                document.body.classList.add("dark-theme");
-            } else {
-                document.body.classList.remove("dark-theme");
-            }
+            titele.style.color = dark ? "rgb(120, 220, 120)" : "rgb(28, 75, 28)";
         }
+        
         updateClock();
         updateDark();
-        setInterval(updateClock, 6);
-        
+        setInterval(updateClock, 31);
     </script>
 </html>
