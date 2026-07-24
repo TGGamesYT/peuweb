@@ -7,8 +7,12 @@
     <link rel="icon" type="image/x-icon" href="Peutron.png">
     <style>
         @font-face {
-        font-family: 'echo';
-        src: url('alpha_echo.ttf');
+          font-family: 'echo';
+          src: url('alpha_echo.ttf');
+        }
+        @font-face {
+          font-family: 'pixel';
+          src: url('https://tggamesyt.dev/assets/Minecraft-Seven_v2.ttf');
         }
 
         body {
@@ -39,13 +43,25 @@
             
         }
         .card {
-            background-color: lightgreen;
+            color: #3F3F3F;
+            font-family: pixel;
             border-radius: 10px;
             margin: 10%;
             padding: 10%;
             box-shadow: 15px 15px 30px rgb(25, 25, 25),
              -15px -15px 30px rgb(60, 60, 60);
-        }
+            width: fit-content;
+            image-rendering: pixelated;
+            padding: 12px 12px 24px 12px;
+            box-sizing: border-box;
+            border-style: solid;
+            border-width: 4px;
+            border-image-source: url('https://minecraft.wiki/images/Inventory_background.png');
+            border-image-slice: 4 fill;
+            border-image-width: 4px;
+            border-image-repeat: stretch;
+            background-clip: padding-box;
+     }
     </style>
 </head>
 <body>
