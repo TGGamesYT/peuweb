@@ -30,70 +30,94 @@
             margin: 0;
             position: absolute;
             top: 0;
-            bottom: 0;
             left: 0;
-            right: 0; 
+            width: 100%;
+            height: 100%;
             z-index: -1;
             opacity: 0;
             transition: opacity 1s;
         }
         .titel {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
             text-align: center;
+            z-index: 0;
+            pointer-events: none;
         }
         .banner {
             max-width: 100%;
+            display: block;
+            margin: 0 auto;
         }
         .title {
             position: absolute;
             font-family: echo;
             color: rgb(28, 75, 28);
-            font-size: 15vw;
+            font-size: min(max(5vw, 15vh), 22vw);
             margin: 0;
             text-align: center;
             bottom: 0;
             transform: translate(-50%, 25%);
             left: 50%;
             transition: color 1s;
+            -webkit-text-stroke: min(max(0.33vw, 1vh), 1.5vw) black;
+            paint-order: stroke fill;
         }
-        
-        /* 
-          EDIT EVERYTHING YOU WANT ABOUT THE CARDS HERE.
-          You never have to touch .dark-card ever again.
-        */
+        .cardlist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3vw;
+            padding: 3vw;
+            box-sizing: border-box;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        .card-wrap {
+            flex: 1 1 280px;
+            min-width: 280px;
+            max-width: 600px;
+        }
+        .card-title {
+            font-family: pixel;
+            color: #3F3F3F;
+            font-size: max(1.5vh, 14px);
+            display: block;
+            margin-bottom: 1vh;
+            transition: color 1s;
+        }
         .card {
             color: #3F3F3F;
             font-family: pixel;
-            border-radius: 10px;
-            margin: 10%;
-            padding: 10%;
+            font-size: max(1.5vh, 13px);
+            padding: 1.5vh;
             image-rendering: pixelated;
             box-sizing: border-box;
             border-style: solid;
-            border-width: 4px;
+            border-width: 2.5vh;
             border-image-source: url('img/inventory.png');
             border-image-slice: 4 fill;
-            border-image-width: 4px;
+            border-image-width: 2.5vh;
             border-image-repeat: stretch;
             background-clip: padding-box;
-            
             position: relative;
             z-index: 1;
             transition: color 1s;
         }
         
-        /* Background overlay handler—ignore this completely from now on */
         .dark-card {
             position: absolute;
-            top: -4px; 
-            bottom: -4px;
-            left: -4px;
-            right: -4px;
+            top: -2.5vh; 
+            bottom: -2.5vh;
+            left: -2.5vh;
+            right: -2.5vh;
             border-style: solid;
-            border-width: 4px;
+            border-width: 2.5vh;
             border-image-source: url('img/dark-inventory.png');
             border-image-slice: 4 fill;
-            border-image-width: 4px;
+            border-image-width: 2.5vh;
             border-image-repeat: stretch;
             background-clip: padding-box;
             z-index: -1; 
@@ -102,29 +126,43 @@
         }
         
         #clock {
-            position: absolute;
+            position: fixed;
             top: 0;
             right: 0;
             width: 10%;
             image-rendering: pixelated;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
     <div id="darkbody"></div>
+    <img id="clock" src="img/clock/clock_00.png" onclick="clockclick()">
     <div class="titel">
         <img src="img/nobgbanner.png" alt="Peutron's banner" class="banner">
         <h1 class="title">Peutron</h1>
-        <img id="clock" src="img/clock/clock_00.png" onclick="clockclick()">
     </div>
     <div class="cardlist">
-        <div class="card">
-            <div class="dark-card"></div> 
-            Card1
+        <div class="card-wrap">
+            <div class="card">
+                <div class="dark-card"></div>
+                <span class="card-title">About</span>
+                Peutron is a Youtuber from Chechia who makes Minecraft maps of Popular online shows, movies or events with functionality using command blocks
+            </div>
         </div>
-        <div class="card">
-            <div class="dark-card"></div>
-            Card2
+        <div class="card-wrap">
+            <div class="card">
+                <div class="dark-card"></div>
+                <span class="card-title">Title2</span>
+                Card2 content
+            </div>
+        </div>
+        <div class="card-wrap">
+            <div class="card">
+                <div class="dark-card"></div>
+                <span class="card-title">Title3</span>
+                Card3 content
+            </div>
         </div>
     </div>
 </body>
@@ -133,11 +171,15 @@
         let dark = false;
         let clock = document.getElementById("clock");
         let easetime = 0;
+        let animStart = null;
+        let animDuration = 1000;
+        let startEasetime = 0;
         
         let darkback = document.getElementById("darkbody");
         let cards = document.querySelectorAll(".card");
         let darkCards = document.querySelectorAll(".dark-card");
         let titele = document.querySelector(".title");
+        let cardTitles = document.querySelectorAll(".card-title");
 
         function getTime64() {
             const d = new Date();
@@ -156,18 +198,33 @@
             let time = getTime64();
             dark = Number(time) > 15 && Number(time) < 47;
             if (easetime > 0) {
-                time = String((Number(time)+1+easetime) % 64).padStart(2, "0");
-                easetime--;
+                time = String((Number(time) + 1 + easetime) % 64).padStart(2, "0");
             }
             clock.src = `img/clock/clock_${time}.png`;
         }
-        
+
         function clockclick() {
             flipped = !flipped;
-            easetime = 32;
+            easetime += 32;
+            startEasetime = easetime;
+            animStart = null;
             updateClock();
             updateDark();
         }
+
+        function callUpdateClock(timestamp) {
+            if (easetime > 0) {
+                if (animStart === null) animStart = timestamp;
+                const elapsed = timestamp - animStart;
+                const progress = Math.min(elapsed / animDuration, 1);
+                const eased = 1 - (1 - progress) ** 3;
+                easetime = Math.round(startEasetime * (1 - eased));
+                if (progress >= 1) easetime = 0;
+            }
+            updateClock();
+            requestAnimationFrame(callUpdateClock);
+        }
+        requestAnimationFrame(callUpdateClock);
         
         function updateDark() {
             darkback.style.opacity = dark ? 1 : 0;
@@ -180,11 +237,44 @@
                 c.style.color = dark ? "#E0E0E0" : "#3F3F3F";
             });
 
+            cardTitles.forEach(t => {
+                t.style.color = dark ? "#E0E0E0" : "#3F3F3F";
+            });
+
             titele.style.color = dark ? "rgb(120, 220, 120)" : "rgb(28, 75, 28)";
         }
         
         updateClock();
         updateDark();
-        setInterval(updateClock, 31);
+
+        const darkbody = document.getElementById("darkbody");
+
+        function updateDarkBodySize() {
+            darkbody.style.height = Math.max(
+                document.body.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.clientHeight,
+                document.documentElement.scrollHeight,
+                document.documentElement.offsetHeight
+            ) + "px";
+        }
+
+        window.addEventListener("load", updateDarkBodySize);
+        window.addEventListener("resize", updateDarkBodySize);
+
+        function updateBannerOffset() {
+            const ratio = window.innerWidth / window.innerHeight;
+            const offset = Math.max(0, (ratio - 1)) * -33;
+            const clampedOffset = Math.max(offset, -66);
+            const extraShift = Math.min(Math.abs(clampedOffset) * 5, 60);
+            document.querySelector('.titel').style.transform = `translateY(${clampedOffset}%)`;
+            document.querySelector('.title').style.transform = `translate(-50%, 25%) translateY(${-extraShift}%)`;
+            const titleBottom = document.querySelector('.title').getBoundingClientRect().bottom + window.scrollY;
+            document.querySelector('.cardlist').style.paddingTop = `${titleBottom + 10}px`;
+        }
+
+        window.addEventListener("resize", updateBannerOffset);
+        window.addEventListener("load", updateBannerOffset);
+        updateBannerOffset();
     </script>
 </html>
