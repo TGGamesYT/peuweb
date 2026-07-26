@@ -28,6 +28,7 @@
             margin: 0;
             position: relative;
             display: flow-root;
+            transition: background-color 1s;
         }
         #darkbody {
             background-image: url("img/netherite.png");
@@ -83,13 +84,11 @@
         }
         .card-wrap {
             flex: 1 1 280px;
-            min-width: 280px;
-            max-width: 600px;
         }
         .card-title {
             font-family: pixel;
             color: #3F3F3F;
-            font-size: max(1.5vh, 14px);
+            font-size: 5vh;
             display: block;
             margin-bottom: 1vh;
             transition: color 1s;
@@ -97,7 +96,7 @@
         .card {
             color: #3F3F3F;
             font-family: pixel;
-            font-size: max(1.5vh, 13px);
+            font-size: 3vh;
             padding: 1.5vh;
             image-rendering: pixelated;
             box-sizing: border-box;
@@ -139,6 +138,82 @@
             image-rendering: pixelated;
             z-index: 10;
         }
+
+        #discord-widget {
+            margin-top: 1.5vh;
+        }
+        .discord-server {
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 1.5vh;
+            background: #2b2d31;
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+            font-family: "Segoe UI", system-ui, sans-serif;
+            color: #ffffff;
+            max-width: 480px;
+        }
+        .discord-banner {
+            width: 100%;
+            display: block;
+        }
+        .discord-body {
+            padding: 48px 16px 16px;
+            position: relative;
+            background: #2b2d31;
+        }
+        .discord-icon {
+            position: absolute;
+            top: -32px;
+            left: 16px;
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            object-fit: cover;
+            image-rendering: auto;
+            background-size: cover;
+            background-position: center;
+            border: 6px solid #2b2d31;
+        }
+        .discord-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 6px;
+            color: #ffffff;
+        }
+        .discord-desc {
+            font-size: 14px;
+            color: #b5bac1;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        .discord-stats {
+            display: flex;
+            gap: 2vh;
+            font-size: 14px;
+            margin-top: 6px;
+            margin-bottom: 1vh;
+            color: #b5bac1;
+        }
+        .discord-online { color: #23a559; }
+        .discord-online::before { content: '● '; }
+        .discord-members::before { content: '● '; color: #80848e; }
+        .discord-join {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #23a559;
+            color: white;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 999px;
+            font-family: pixel;
+            font-size: 2vh;
+            font-weight: 700;
+            box-sizing: border-box;
+            transition: filter 0.2s;
+            margin-top: 16px;
+        }
+        .discord-join:hover { filter: brightness(1.15); }
     </style>
 </head>
 <body>
@@ -156,18 +231,24 @@
                 Peutron is a Youtuber from Czechia who makes Minecraft maps of Popular online shows, movies or events with functionality using command blocks
             </div>
         </div>
+    </div>
+    <div class="cardlist">
         <div class="card-wrap">
             <div class="card">
                 <div class="dark-card"></div>
-                <span class="card-title">Title2</span>
-                Card2 content
+                <span class="card-title">Videos</span>
+                You can check his latest videos out here:
             </div>
         </div>
+    </div>
+    <div class="cardlist" id="video-cards"></div>
+    <div class="cardlist">
         <div class="card-wrap">
             <div class="card">
                 <div class="dark-card"></div>
-                <span class="card-title">Title3</span>
-                Card3 content
+                <span class="card-title">Discord</span>
+                For sneak peaks, announcements and events regarding Peutron's maps join our Discord server:
+                <div id="discord-widget"></div>
             </div>
         </div>
     </div>
@@ -187,6 +268,127 @@
         let titele = document.querySelector(".title");
         let cardTitles = document.querySelectorAll(".card-title");
 
+        const CHANNEL_ID = 'UCR5OFXUdMaBZ8sBYJwevKJQ';
+
+        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+        function getVideoThumbnail(videoId, isShort) {
+            return isShort
+                ? `https://i.ytimg.com/vi/${videoId}/oar2.jpg`
+                : `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+        }
+
+        fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('video-cards');
+            data.items.slice(0, 3).forEach(video => {
+                const url = new URL(video.link);
+                const isShort = video.link.includes('/shorts/');
+                const videoId = isShort
+                    ? video.link.split('/shorts/')[1].split('?')[0]
+                    : url.searchParams.get('v');
+
+                const wrap = document.createElement('div');
+                wrap.className = 'card-wrap';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.gap = '1vh';
+                card.style.cursor = 'pointer';
+
+                const darkCard = document.createElement('div');
+                darkCard.className = 'dark-card';
+                darkCard.style.opacity = dark ? 1 : 0;
+
+                const a = document.createElement('a');
+                a.href = video.link;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.style.textDecoration = 'none';
+                a.style.color = 'inherit';
+                a.style.display = 'flex';
+                a.style.flexDirection = 'column';
+                a.style.gap = '1vh';
+
+                const thumbSrc = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+                const thumbWrap = document.createElement('div');
+                thumbWrap.style.position = 'relative';
+                thumbWrap.style.width = '100%';
+                thumbWrap.style.aspectRatio = '16/9';
+                thumbWrap.style.borderRadius = '4px';
+                thumbWrap.style.overflow = 'hidden';
+                thumbWrap.style.transition = 'opacity 0.2s';
+                a.onmouseover = () => thumbWrap.style.opacity = '0.8';
+                a.onmouseout = () => thumbWrap.style.opacity = '1';
+
+                if (isShort) {
+                    // Blurred background layer
+                    const bgImg = document.createElement('img');
+                    bgImg.src = thumbSrc;
+                    bgImg.alt = '';
+                    bgImg.style.position = 'absolute';
+                    bgImg.style.top = '-12px';
+                    bgImg.style.left = '-12px';
+                    bgImg.style.right = '-12px';
+                    bgImg.style.bottom = '-12px';
+                    bgImg.style.width = 'calc(100% + 24px)';
+                    bgImg.style.height = 'calc(100% + 24px)';
+                    bgImg.style.objectFit = 'fill';
+                    bgImg.style.filter = 'blur(12px) brightness(0.6)';
+                    bgImg.onerror = () => { bgImg.src = `https://i.ytimg.com/vi/${videoId}/oar2.jpg`; };
+
+                    const fgImg = document.createElement('img');
+                    fgImg.src = thumbSrc;
+                    fgImg.alt = video.title;
+                    fgImg.style.position = 'absolute';
+                    fgImg.style.top = '0';
+                    fgImg.style.left = '50%';
+                    fgImg.style.transform = 'translateX(-50%)';
+                    fgImg.style.height = '100%';
+                    fgImg.style.width = 'auto';
+                    fgImg.style.objectFit = 'contain';
+                    fgImg.style.imageRendering = 'auto';
+                    fgImg.onerror = () => { fgImg.src = `https://i.ytimg.com/vi/${videoId}/oar2.jpg`; };
+
+                    thumbWrap.appendChild(bgImg);
+                    thumbWrap.appendChild(fgImg);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = thumbSrc;
+                    img.alt = video.title;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.imageRendering = 'auto';
+                    img.onerror = () => { img.src = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`; };
+                    thumbWrap.appendChild(img);
+                }
+
+                const title = document.createElement('div');
+                title.textContent = video.title;
+                title.style.fontSize = '2vh';
+                title.style.lineHeight = '1.3';
+
+                a.appendChild(thumbWrap);
+                a.appendChild(title);
+                card.appendChild(darkCard);
+                card.appendChild(a);
+                wrap.appendChild(card);
+                container.appendChild(wrap);
+            });
+
+            updateDark();
+        })
+        .catch(() => {
+            const container = document.getElementById('video-cards');
+            container.textContent = 'Failed to load videos.';
+        });
+
         function getTime64() {
             const d = new Date();
             let hours = d.getHours();
@@ -200,13 +402,18 @@
             return String(Math.floor(((totalMinutes + 720) % 1440) / 22.5)).padStart(2, "0");
         }
         
+        let lastClockSrc = '';
         function updateClock() {
             let time = getTime64();
             dark = Number(time) > 15 && Number(time) < 47;
             if (easetime > 0) {
                 time = String((Number(time) + 1 + easetime) % 64).padStart(2, "0");
             }
-            clock.src = `img/clock/clock_${time}.png`;
+            const newSrc = `img/clock/clock_${time}.png`;
+            if (newSrc !== lastClockSrc) {
+                clock.src = newSrc;
+                lastClockSrc = newSrc;
+            }
         }
 
         function clockclick() {
@@ -234,16 +441,17 @@
         
         function updateDark() {
             darkback.style.opacity = dark ? 1 : 0;
-            
-            darkCards.forEach(dc => {
+            document.body.style.backgroundColor = dark ? '#000' : '';
+
+            document.querySelectorAll(".dark-card").forEach(dc => {
                 dc.style.opacity = dark ? 1 : 0;
             });
-            
-            cards.forEach(c => {
+
+            document.querySelectorAll(".card").forEach(c => {
                 c.style.color = dark ? "#E0E0E0" : "#3F3F3F";
             });
 
-            cardTitles.forEach(t => {
+            document.querySelectorAll(".card-title").forEach(t => {
                 t.style.color = dark ? "#E0E0E0" : "#3F3F3F";
             });
 
@@ -256,6 +464,7 @@
         const darkbody = document.getElementById("darkbody");
 
         function updateDarkBodySize() {
+            darkbody.style.height = '0';
             darkbody.style.height = Math.max(
                 document.body.scrollHeight,
                 document.body.offsetHeight,
@@ -265,8 +474,8 @@
             ) + "px";
         }
 
-        window.addEventListener("load", updateDarkBodySize);
-        window.addEventListener("resize", updateDarkBodySize);
+        new ResizeObserver(updateDarkBodySize).observe(document.body);
+        updateDarkBodySize();
 
         function updateBannerOffset() {
             const ratio = window.innerWidth / window.innerHeight;
@@ -278,6 +487,78 @@
             const titleBottom = document.querySelector('.title').getBoundingClientRect().bottom + window.scrollY;
             document.querySelector('.cardlist').style.paddingTop = `${titleBottom + 10}px`;
         }
+
+        function extractVibrantColor(img) {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = canvas.height = 32;
+            ctx.drawImage(img, 0, 0, 32, 32);
+            const data = ctx.getImageData(0, 0, 32, 32).data;
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] > 200) { r += data[i]; g += data[i+1]; b += data[i+2]; count++; }
+            }
+            return `rgb(${Math.round(r/count)},${Math.round(g/count)},${Math.round(b/count)})`;
+        }
+
+        fetch('https://discord.com/api/v10/invites/MrcrsKPJgR?with_counts=true')
+        .then(res => res.json())
+        .then(data => {
+            const guild = data.guild;
+            const iconUrl = guild.icon
+                ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
+                : "";
+            const bannerUrl = guild.banner
+                ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=600`
+                : "";
+
+            const widget = document.getElementById('discord-widget');
+
+            const server = document.createElement('div');
+            server.className = 'discord-server';
+
+            const bannerEl = document.createElement('div');
+            bannerEl.className = 'discord-banner';
+            if (bannerUrl) {
+                const bannerImg = document.createElement('img');
+                bannerImg.src = bannerUrl;
+                bannerImg.alt = '';
+                bannerImg.style.cssText = 'width:100%;display:block;';
+                bannerEl.appendChild(bannerImg);
+            }
+
+            const body = document.createElement('div');
+            body.className = 'discord-body';
+
+            body.innerHTML = `
+                <div class="discord-icon" style="background-image:url('${iconUrl}')"></div>
+                <div class="discord-name">${guild.name}</div>
+                ${guild.description ? `<div class="discord-desc">${guild.description}</div>` : ''}
+                <div class="discord-stats">
+                    <span class="discord-online">${(data.approximate_presence_count ?? 0).toLocaleString()} Online</span>
+                    <span class="discord-members">${(data.approximate_member_count ?? 0).toLocaleString()} Members</span>
+                </div>
+                <a class="discord-join" href="https://discord.gg/MrcrsKPJgR" target="_blank" rel="noopener noreferrer">Join</a>
+            `;
+
+            server.appendChild(bannerEl);
+            server.appendChild(body);
+            widget.appendChild(server);
+
+            if (!bannerUrl && iconUrl) {
+                bannerEl.style.minHeight = '110px';
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = iconUrl;
+                img.onload = () => {
+                    const color = extractVibrantColor(img);
+                    bannerEl.style.background = `linear-gradient(135deg, ${color}, rgba(0,0,0,0.6))`;
+                };
+            }
+        })
+        .catch(() => {
+            document.getElementById('discord-widget').textContent = 'Failed to load Discord info.';
+        });
 
         window.addEventListener("resize", updateBannerOffset);
         window.addEventListener("load", updateBannerOffset);
