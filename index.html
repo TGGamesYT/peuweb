@@ -148,7 +148,7 @@
             margin-bottom: 1.5vh;
             background: #2b2d31;
             box-shadow: 0 8px 24px rgba(0,0,0,.35);
-            font-family: "Segoe UI", system-ui, sans-serif;
+            font-family: pixel;
             color: #ffffff;
             max-width: 480px;
         }
@@ -214,6 +214,14 @@
             margin-top: 16px;
         }
         .discord-join:hover { filter: brightness(1.15); }
+
+        #footerr, #footerra {
+            font-family: echo;
+            text-align: center; 
+            text-decoration: none;
+            color: aqua;
+            transition: color 1s;
+        }
     </style>
 </head>
 <body>
@@ -231,8 +239,6 @@
                 Peutron is a Youtuber from Czechia who makes Minecraft maps of Popular online shows, movies or events with functionality using command blocks
             </div>
         </div>
-    </div>
-    <div class="cardlist">
         <div class="card-wrap">
             <div class="card">
                 <div class="dark-card"></div>
@@ -252,6 +258,7 @@
             </div>
         </div>
     </div>
+    <p id="footerr">Made by <a id="footerra" href="https://tggamesyt.dev">TGdoesCode</a></p>
 </body>
     <script>
         let flipped = false;
@@ -267,6 +274,7 @@
         let darkCards = document.querySelectorAll(".dark-card");
         let titele = document.querySelector(".title");
         let cardTitles = document.querySelectorAll(".card-title");
+        let footerr = document.getElementById("footerr");
 
         const CHANNEL_ID = 'UCR5OFXUdMaBZ8sBYJwevKJQ';
 
@@ -327,7 +335,6 @@
                 a.onmouseout = () => thumbWrap.style.opacity = '1';
 
                 if (isShort) {
-                    // Blurred background layer
                     const bgImg = document.createElement('img');
                     bgImg.src = thumbSrc;
                     bgImg.alt = '';
@@ -454,6 +461,9 @@
             document.querySelectorAll(".card-title").forEach(t => {
                 t.style.color = dark ? "#E0E0E0" : "#3F3F3F";
             });
+
+            footerr.style.color = dark ? "aqua" : "blue"
+            footerra.style.color = dark ? "aqua" : "blue"
 
             titele.style.color = dark ? "rgb(120, 220, 120)" : "rgb(28, 75, 28)";
         }
