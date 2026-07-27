@@ -259,7 +259,16 @@
             </div>
         </div>
     </div>
-    <p id="footerr">Made by <a id="footerra" href="https://tggamesyt.dev">TGdoesCode</a></p>
+    <div class="cardlist" id="adv-cardlist" style="display:none;">
+        <div class="card-wrap">
+            <div class="card" id="adv-card">
+                <div class="dark-card"></div>
+                <span class="card-title">Advancements</span>
+                <div id="adv-icons" style="display:flex; flex-wrap:wrap; gap:1.5vh; margin-top:1vh;"></div>
+            </div>
+        </div>
+    </div>
+    <p id="footerr">Made by <a id="footerra" href="https://tggamesyt.dev" target="_blank" onclick="tg()">TGdoesCode</a></p>
 </body>
     <script>
         let flipped = false;
@@ -329,6 +338,7 @@
                 a.style.display = 'flex';
                 a.style.flexDirection = 'column';
                 a.style.gap = '1vh';
+                a.onclick = () => vid(videoId);
 
                 const thumbSrc = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
@@ -438,6 +448,7 @@
             animStart = null;
             updateClock();
             updateDark();
+            darkswitch();
         }
 
         function callUpdateClock(timestamp) {
@@ -556,7 +567,7 @@
                     <span class="discord-online">${(data.approximate_presence_count ?? 0).toLocaleString()} Online</span>
                     <span class="discord-members">${(data.approximate_member_count ?? 0).toLocaleString()} Members</span>
                 </div>
-                <a class="discord-join" href="https://discord.gg/MrcrsKPJgR" target="_blank" rel="noopener noreferrer">Join</a>
+                <a class="discord-join" href="https://discord.gg/MrcrsKPJgR" target="_blank" rel="noopener noreferrer" onclick="dc()">Join</a>
             `;
 
             server.appendChild(bannerEl);
@@ -581,5 +592,106 @@
         window.addEventListener("resize", updateBannerOffset);
         window.addEventListener("load", updateBannerOffset);
         updateBannerOffset();
+        let advancements = [
+            { id: 'tg',   icon: 'img/adv/tg.png',        title: 'I wonder who TG is',              desc: 'Click on THE link',         gotten: false, toast: true  },
+            { id: 'dc',   icon: 'img/adv/discord.png',    title: 'This chord?',                     desc: 'Join the discord',          gotten: false, toast: false },
+            { id: 'vids', icon: 'img/adv/youtube.png',    title: 'Real fan',                        desc: 'Watched all 3 videos',      gotten: false, toast: true  },
+            { id: 'dark', icon: 'img/clock/clock_00.png', title: 'You clicked it how many times??', desc: 'Switch the mode 100 times', gotten: false, toast: true  },
+            { id: 'all',  icon: 'img/Peutron.png',        title: 'Hardcore advancement hunter',     desc: 'Get all advancements',      gotten: false, toast: true  },
+        ];
+
+        function grantAdvancementById(id) {
+            const adv = advancements.find(a => a.id === id);
+            if (adv) grantAdvancement(adv.title, adv.desc, adv.icon, adv.toast);
+        }
+
+        function markGotten(id) {
+            const adv = advancements.find(a => a.id === id);
+            if (adv) adv.gotten = true;
+            renderAdvCard();
+        }
+
+        function renderAdvCard() {
+            const anyGotten = advancements.filter(a => a.gotten).length >= 2;
+            const cardlist = document.getElementById('adv-cardlist');
+            cardlist.style.display = anyGotten ? '' : 'none';
+
+            const container = document.getElementById('adv-icons');
+            container.innerHTML = '';
+
+            advancements.forEach(adv => {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'position:relative; display:inline-block;';
+
+                const img = document.createElement('img');
+                img.src = adv.icon;
+                img.style.cssText = `width:6vh; height:6vh; object-fit:contain; image-rendering:pixelated; opacity:${adv.gotten ? '1' : '0.5'}; cursor:default; transition:opacity 1s;`;
+
+                const tooltip = document.createElement('div');
+                tooltip.style.cssText = `
+                    position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+                    background:#222; color:#fff; font-family:pixel; font-size:1.5vh;
+                    padding:0.5vh 1vh; border-radius:4px; white-space:nowrap;
+                    pointer-events:none; opacity:0; transition:opacity 0.15s; z-index:100;
+                `;
+                tooltip.innerHTML = `<b>${adv.title}</b><br>${adv.desc}`;
+
+                wrapper.addEventListener('mouseenter', () => tooltip.style.opacity = '1');
+                wrapper.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(tooltip);
+                container.appendChild(wrapper);
+            });
+
+            updateDark();
+        }
+
+        let tggotten = false;
+        let vidgotten = false;
+        vids = [];
+        let dcgotten = false;
+        let darkswitchgotten = false;
+        let darkcounter = 0;
+        let allgotten = false;
+
+        function tg() {
+            if (!tggotten) {
+                grantAdvancementById("tg");
+                tggotten = true;
+                markGotten('tg');
+            }
+        }
+        function dc() {
+            if (!dcgotten) {
+                grantAdvancementById("dc");
+                dcgotten = true;
+                markGotten('dc');
+            }
+        }
+        function darkswitch() {
+            if (!darkswitchgotten && darkcounter > 99) {
+                grantAdvancementById("dark");
+                darkswitchgotten = true;
+                markGotten('dark');
+            }
+            darkcounter++;
+        }
+        function vid(vidID) {
+            vids.unshift(vidID);
+            if (vids.length > 2 && !vidgotten) {
+                grantAdvancementById("vids");
+                vidgotten = true;
+                markGotten('vids');
+            }
+        }
+        function allAdv() {
+            if (tggotten && vidgotten && dcgotten && darkswitchgotten && !allgotten) {
+                grantAdvancementById("all");
+                allgotten = true;
+                markGotten('all');
+            }
+        }
+        setInterval(allAdv, 1000);
     </script>
 </html>
